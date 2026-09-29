@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [windows-latest]
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      - name: Build frontend
+        run: pnpm build
+
+      - name: Build and Publish Tauri Release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'Douyin Monitor Desktop ${{ github.ref_name }}'
+          releaseBody: |
+            ## 抖音作品数据监控 (Douyin Monitor Desktop) ${{ github.ref_name }}
+
+            ### 🚀 核心更新亮点
+            - 🎯 **指定目标精准监控**：支持抖音 App 分享口令与 PC 网页长链，自动清洗提取有效链接。
+            - 📊 **四维互动实时追踪**：点赞、评论、收藏、分享核心指标动态监测与 Sparkline 趋势分析。
+            - ⏰ **自然周期智能防重**：仅需设置时间跨度与增长阈值，到期自动进入保护期，彻底杜绝重复骚扰。
+            - 🤖 **飞书机器人无缝推送**：支持 HMAC-SHA256 签名密钥与关键词过滤，自动关联作品负责人称谓。
+            - 👤 **负责人快捷管理**：常用责任人快捷点选，支持下拉面板一键删除（`×`）维护。
+            - 🛡️ **多账号沙箱隔离**：各账号独立浏览器环境，扫码一次持久有效。
+            - 🩺 **运行环境全项体检**：WebView2、Google Chrome、网络质量与 SQLite 磁盘健康全项诊断。
+            - ⚡ **本地极简与自动滚动覆盖**：7 天自动淘汰旧快照并执行 VACUUM 释放磁盘空间。
+            - 🪟 **系统托盘与开机自启动**：关闭窗口自动最小化托盘，10 分钟定时静默调度。
+          releaseDraft: false
+          prerelease: false
