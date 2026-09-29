@@ -1,8 +1,10 @@
 onlyBuiltDependencies:
   - esbuild
+  - simple-git-hooks
   - vue-demi
 allowBuilds:
   esbuild: true
+  simple-git-hooks: true
   vue-demi: true
 minimumReleaseAgeExclude:
   - '@tauri-apps/api@2.12.0'
