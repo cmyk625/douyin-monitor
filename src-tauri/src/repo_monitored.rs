@@ -7,7 +7,8 @@ use rusqlite::{params, Connection, OptionalExtension};
 const MONITORED_SELECT: &str = "SELECT m.id, m.account_id, COALESCE(a.name, ''), m.aweme_id, m.title, m.url,
         m.owner_name, m.owner_open_id, m.enabled, m.created_at, m.last_collect_at, m.last_error,
         w.id, w.last_seen_at, w.play, w.like_cnt, w.comment_cnt, w.share_cnt, w.collect_cnt,
-        COALESCE(NULLIF(w.author_name, ''), NULLIF(m.author_name, ''), '') AS author_name
+        COALESCE(NULLIF(w.author_name, ''), NULLIF(m.author_name, ''), '') AS author_name,
+        w.published_at
      FROM monitored_works m
      LEFT JOIN accounts a ON a.id = m.account_id
      LEFT JOIN works w ON w.account_id = m.account_id AND w.aweme_id = m.aweme_id";
@@ -28,6 +29,7 @@ fn map_monitored(row: &rusqlite::Row<'_>) -> rusqlite::Result<MonitoredWork> {
         last_collect_at: row.get(10)?,
         last_error: row.get(11)?,
         work_id: row.get(12)?,
+        published_at: row.get(20)?,
         last_seen_at: row.get(13)?,
         metrics: Metrics {
             play: row.get(14)?,

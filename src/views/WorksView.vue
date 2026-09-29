@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { api } from "@/api";
 import { notify, refreshMonitored, refreshStatus, setLoading, store } from "@/store";
-import { extractDouyinUrl, fmtDelta, fmtNum, fmtShort, fmtTime, metricLabel } from "@/utils";
+import { extractDouyinUrl, fmtDelta, fmtNum, fmtPublishDate, fmtShort, fmtTime, metricLabel } from "@/utils";
 import Sparkline from "@/components/Sparkline.vue";
 import Pagination from "@/components/Pagination.vue";
 import { Card } from "@/components/ui/card";
@@ -49,7 +49,7 @@ import {
 } from "lucide-vue-next";
 import type { MonitoredInput, MonitoredWork, SnapshotPoint } from "@/types";
 
-type SortField = "like" | "comment" | "share" | "collect" | null;
+type SortField = "like" | "comment" | "share" | "collect" | "published_at" | null;
 type SortOrder = "asc" | "desc";
 
 const editing = ref<MonitoredInput | null>(null);
@@ -62,7 +62,7 @@ const filterStatus = ref<string>("all");
 const sortField = ref<SortField>(null);
 const sortOrder = ref<SortOrder>("desc");
 
-function toggleSort(field: "like" | "comment" | "share" | "collect"): void {
+function toggleSort(field: "like" | "comment" | "share" | "collect" | "published_at"): void {
   if (sortField.value === field) {
     if (sortOrder.value === "desc") {
       sortOrder.value = "asc";
@@ -124,8 +124,15 @@ const filteredMonitored = computed(() => {
     const field = sortField.value;
     const factor = sortOrder.value === "asc" ? 1 : -1;
     list = [...list].sort((a, b) => {
-      const valA = a.metrics[field] ?? 0;
-      const valB = b.metrics[field] ?? 0;
+      let valA: number;
+      let valB: number;
+      if (field === "published_at") {
+        valA = a.published_at ?? 0;
+        valB = b.published_at ?? 0;
+      } else {
+        valA = a.metrics[field] ?? 0;
+        valB = b.metrics[field] ?? 0;
+      }
       return (valA - valB) * factor;
     });
   }
@@ -634,7 +641,21 @@ onMounted(() => {
               <ArrowUpDown v-else class="w-3 h-3 text-muted-foreground/50 hover:text-white" />
             </button>
           </TableHead>
-          <TableHead>更新时间</TableHead>
+          <TableHead class="whitespace-nowrap">
+            <button
+              type="button"
+              class="inline-flex items-center gap-1 text-xs font-medium hover:text-white transition-colors cursor-pointer select-none"
+              :class="{ 'text-white font-semibold': sortField === 'published_at' }"
+              title="点击按发布时间排序"
+              @click="toggleSort('published_at')"
+            >
+              <span>发布时间</span>
+              <ArrowUp v-if="sortField === 'published_at' && sortOrder === 'asc'" class="w-3.5 h-3.5 text-blue-400" />
+              <ArrowDown v-else-if="sortField === 'published_at' && sortOrder === 'desc'" class="w-3.5 h-3.5 text-blue-400" />
+              <ArrowUpDown v-else class="w-3 h-3 text-muted-foreground/50 hover:text-white" />
+            </button>
+          </TableHead>
+          <TableHead class="whitespace-nowrap">更新时间</TableHead>
           <TableHead class="w-1 text-center">操作</TableHead>
         </TableRow>
       </TableHeader>
@@ -693,6 +714,14 @@ onMounted(() => {
           </TableCell>
           <TableCell class="text-right font-mono text-slate-300">
             {{ fmtNum(item.metrics.collect) }}
+          </TableCell>
+
+          <!-- 发布时间 -->
+          <TableCell
+            class="whitespace-nowrap text-muted-foreground font-mono text-[11px]"
+            :title="item.published_at ? fmtTime(item.published_at) : '尚未采集到发布时间'"
+          >
+            {{ fmtPublishDate(item.published_at) }}
           </TableCell>
 
           <!-- 更新时间 -->
@@ -760,7 +789,7 @@ onMounted(() => {
           </TableCell>
         </TableRow>
 
-        <TableEmpty v-if="filteredMonitored.length === 0" :colspan="10">
+        <TableEmpty v-if="filteredMonitored.length === 0" :colspan="11">
           <template v-if="store.monitored.length === 0">
             还没有监控视频。点击右上角「新增监控视频」，粘贴抖音作品链接开始数据监控。
           </template>

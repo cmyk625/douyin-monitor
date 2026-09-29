@@ -163,6 +163,8 @@ pub struct MonitoredWork {
     pub last_error: String,
     /// 对应采集数据的 works.id（尚未采集到时为 null）
     pub work_id: Option<i64>,
+    #[serde(default)]
+    pub published_at: Option<i64>,
     pub last_seen_at: Option<i64>,
     pub metrics: Metrics,
 }

@@ -97,6 +97,13 @@ export function fmtShort(ts: number | null | undefined): string {
   return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 
+export function fmtPublishDate(ts: number | null | undefined): string {
+  if (!ts) return "—";
+  const d = new Date(ts * 1000);
+  const p = (v: number) => String(v).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
 export function fmtAgo(ts: number | null | undefined): string {
   if (!ts) return "从未";
   const diff = Math.floor(Date.now() / 1000) - ts;

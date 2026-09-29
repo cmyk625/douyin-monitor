@@ -76,6 +76,8 @@ export interface MonitoredWork {
   last_error: string;
   /** 对应采集数据（works.id），尚未采集到为 null */
   work_id: number | null;
+  /** 作品发布时间戳（秒），尚未采集到为 null */
+  published_at: number | null;
   last_seen_at: number | null;
   metrics: Metrics;
 }
