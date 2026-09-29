@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-vue-next";
 
 const props = withDefaults(
@@ -33,6 +41,17 @@ const endItem = computed(() => {
 
 const jumpInput = ref<string>("");
 
+const selectedSizeStr = computed({
+  get: () => String(props.pageSize),
+  set: (val: string) => {
+    const size = parseInt(val, 10);
+    if (!isNaN(size) && size !== props.pageSize) {
+      emit("update:pageSize", size);
+      emit("update:currentPage", 1);
+    }
+  },
+});
+
 function setPage(p: number): void {
   const target = Math.max(1, Math.min(totalPages.value, p));
   if (target !== props.currentPage) {
@@ -47,34 +66,28 @@ function handleJump(): void {
   }
   jumpInput.value = "";
 }
-
-function handleSizeChange(e: Event): void {
-  const target = e.target as HTMLSelectElement;
-  const size = parseInt(target.value, 10);
-  if (!isNaN(size)) {
-    emit("update:pageSize", size);
-    emit("update:currentPage", 1);
-  }
-}
 </script>
 
 <template>
   <div class="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground select-none py-1">
-    <!-- 左侧：统计与每页条数选择 -->
+    <!-- 左侧：统计与美化后的每页条数选择 -->
     <div class="flex items-center gap-3">
       <span>
         显示 <span class="font-mono text-slate-200">{{ startItem }}-{{ endItem }}</span> 条，共 <span class="font-mono text-slate-200">{{ totalItems }}</span> 条
       </span>
-      <div class="flex items-center gap-1.5">
-        <select
-          :value="pageSize"
-          class="h-7 text-xs bg-slate-900 border border-slate-700/60 rounded px-2 text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
-          @change="handleSizeChange"
-        >
-          <option v-for="opt in pageSizeOptions" :key="opt" :value="opt">
-            {{ opt }} 条/页
-          </option>
-        </select>
+      <div class="w-[110px]">
+        <Select v-model="selectedSizeStr">
+          <SelectTrigger class="h-7 text-xs px-2.5 bg-slate-900 border-slate-700/80">
+            <SelectValue>
+              {{ pageSize }} 条/页
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent class="min-w-[110px]">
+            <SelectItem v-for="opt in pageSizeOptions" :key="opt" :value="String(opt)">
+              {{ opt }} 条/页
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
 
@@ -127,12 +140,12 @@ function handleSizeChange(e: Event): void {
       </Button>
 
       <!-- 快速跳页 -->
-      <div v-if="totalPages > 1" class="flex items-center gap-1 ml-2">
+      <div v-if="totalPages > 1" class="flex items-center gap-1.5 ml-2">
         <span>跳至</span>
-        <input
+        <Input
           v-model="jumpInput"
           type="text"
-          class="w-10 h-7 text-center text-xs bg-slate-900 border border-slate-700/60 rounded px-1 text-slate-200 font-mono focus:outline-none focus:ring-1 focus:ring-blue-500"
+          class="w-12 h-7 text-center text-xs bg-slate-900 border-slate-700/80 rounded px-1 text-slate-200 font-mono"
           :placeholder="String(currentPage)"
           @keydown.enter="handleJump"
         />
