@@ -1,6 +1,6 @@
 [package]
 name = "douyin-monitor"
-version = "0.1.0"
+version = "0.1.1"
 description = "抖音作品数据监控（Tauri 2 + CDP + SQLite + 飞书机器人）"
 authors = ["douyin-monitor"]
 edition = "2021"

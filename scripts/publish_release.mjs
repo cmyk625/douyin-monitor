@@ -2,8 +2,10 @@ import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
-const TAG = "v0.1.0";
-const RELEASE_NAME = "Douyin Monitor Desktop v0.1.0";
+const tauriConf = JSON.parse(fs.readFileSync("src-tauri/tauri.conf.json", "utf-8"));
+const VERSION = tauriConf.version || "0.1.1";
+const TAG = `v${VERSION}`;
+const RELEASE_NAME = `Douyin Monitor Desktop v${VERSION}`;
 const REPO = "cmyk625/douyin-monitor";
 
 console.log(">>> 获取 Git Credential 认证 Token...");
@@ -26,20 +28,23 @@ const headers = {
 
 const releaseBody = `## 抖音作品数据监控 (Douyin Monitor Desktop) ${TAG}
 
-### 🚀 核心特性与更新亮点
-- 🎯 **指定目标精准监控**：支持抖音 App 完整分享口令与 PC 网页长链，自动清洗提取规范作品链接。
-- 📊 **四维互动实时追踪**：点赞、评论、收藏、分享四大核心指标实时动态监测与 Sparkline 趋势分析。
-- ⏰ **自然周期智能防重**：仅需设置时间跨度与增长阈值，到期自动进入保护期，彻底杜绝重复骚扰。
-- 🤖 **飞书机器人无缝推送**：支持 HMAC-SHA256 签名密钥与关键词过滤，自动关联作品负责人称谓。
-- 👤 **负责人快捷管理**：常用责任人快捷点选，支持下拉面板一键删除（×）维护。
-- 🛡️ **多账号沙箱隔离**：各账号独立浏览器沙箱环境，扫码一次持久有效。
-- 🩺 **运行环境全项体检**：WebView2、Google Chrome、网络质量与 SQLite 磁盘健康全项诊断。
-- ⚡ **本地极简与自动滚动覆盖**：7 天自动淘汰旧快照并执行 VACUUM 释放磁盘空间。
-- 🪟 **系统托盘与开机自启动**：关闭窗口自动最小化托盘，10 分钟定时静默调度。
+### 🌟 v${VERSION} 版本更新亮点
+- 📅 **监控作品列表新增「发布时间」列**：支持发布时间正序/倒序动态排序，鼠标悬停可查看精确发布时间戳。
+- 🎯 **操作列纯文字交互与固定贴右（Sticky Right）**：
+  - 操作按钮全新升级为纯文字按钮（「采集」、「趋势」、「打开」、「编辑」、「删除」），界面更直观；
+  - 表格操作列固定在最右侧并附带微阴影与分割线，横向滚动浏览复杂数据指标时操作常驻不遮挡。
+- 🎨 **全局分页选择器与快捷跳页美化**：
+  - 每页条数选择器升级为 shadcn UI 组件，支持自适应方向弹性弹出与勾选标记；
+  - 快速跳页输入框与暗色调主题风格全面统一。
+- 🛡️ **重新安装与覆盖安装优化（数据防丢失保护）**：
+  - 新版本安装时自动终止后台托盘常驻进程，彻底解决“文件被占用”的覆盖安装失败问题；
+  - 彻底保护系统数据目录，无论是升级、直接覆盖安装或重装，本地 SQLite 数据库、Cookie 登录会话与飞书配置永久留存、绝不丢失！
+- ⚙️ **工程规范与提交工具链支持**：
+  - 集成 Commitlint + cz-git 交互式提交助手，支持一键 \`pnpm commit\` 格式化提交消息。
 
 ### 📦 软件包下载指南
-- **\`DouyinMonitor_0.1.0_x64-setup.exe\`** (推荐)：NSIS 中文引导安装程序，适合大多数 Windows 用户直接安装运行；
-- **\`DouyinMonitor_0.1.0_x64_en-US.msi\`**：标准 Windows Installer 安装程序，适合企业或需要静默安装的场景。`;
+- **\`DouyinMonitor_${VERSION}_x64-setup.exe\`** (推荐)：NSIS 中文引导安装程序，支持新旧版本一键平滑升级与直接覆盖安装；
+- **\`DouyinMonitor_${VERSION}_x64_en-US.msi\`**：标准 Windows Installer 安装程序，适合企业域或静默安装场景。`;
 
 async function main() {
   console.log(`>>> 检查 Release (${TAG})...`);
@@ -84,12 +89,12 @@ async function main() {
 
   const assetsToUpload = [
     {
-      filePath: "src-tauri/target/release/bundle/nsis/DouyinMonitor_0.1.0_x64-setup.exe",
-      name: "DouyinMonitor_0.1.0_x64-setup.exe"
+      filePath: `src-tauri/target/release/bundle/nsis/DouyinMonitor_${VERSION}_x64-setup.exe`,
+      name: `DouyinMonitor_${VERSION}_x64-setup.exe`
     },
     {
-      filePath: "src-tauri/target/release/bundle/msi/DouyinMonitor_0.1.0_x64_en-US.msi",
-      name: "DouyinMonitor_0.1.0_x64_en-US.msi"
+      filePath: `src-tauri/target/release/bundle/msi/DouyinMonitor_${VERSION}_x64_en-US.msi`,
+      name: `DouyinMonitor_${VERSION}_x64_en-US.msi`
     }
   ];
 
