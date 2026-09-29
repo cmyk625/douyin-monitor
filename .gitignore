@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.pnpm-store/
+
+src-tauri/target/
+src-tauri/gen/schemas/
+
+*.log
+*.db
+*.db-shm
+*.db-wal
+chrome-profiles/
+.DS_Store
+.idea/
+.vscode/

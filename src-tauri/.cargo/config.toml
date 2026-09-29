@@ -1,0 +1,9 @@
+# 仅 Windows MSVC 目标需要：Tauri 会链接 TaskDialogIndirect（只存在于 Common Controls v6），
+# 普通可执行文件由 tauri-build 嵌入清单，但 cargo test 生成的测试二进制没有清单，
+# 会以 STATUS_ENTRYPOINT_NOT_FOUND (0xc0000139) 退出。这里通过链接参数为所有产物
+# 追加 Common Controls v6 依赖项，link.exe 会在生成清单时合并（无需额外文件）。
+[target.x86_64-pc-windows-msvc]
+rustflags = [
+  "-C", "link-arg=/MANIFEST:EMBED",
+  "-C", "link-arg=/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'",
+]

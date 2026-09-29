@@ -1,0 +1,47 @@
+[package]
+name = "douyin-monitor"
+version = "0.1.0"
+description = "抖音作品数据监控（Tauri 2 + CDP + SQLite + 飞书机器人）"
+authors = ["douyin-monitor"]
+edition = "2021"
+rust-version = "1.85"
+
+[lib]
+name = "douyin_monitor_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+anyhow = "1.0.104"
+base64 = "0.23.1"
+chrono = { version = "0.4.45", features = ["serde"] }
+futures-util = "0.3.34"
+hmac = "0.13.0"
+opener = "0.8.5"
+regex = "1.13.1"
+reqwest = { version = "0.13.5", default-features = false, features = ["json", "rustls"] }
+rusqlite = { version = "0.40.2", features = ["bundled"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+sha2 = "0.11.0"
+tauri = { version = "2.12.0", features = ["tray-icon"] }
+tauri-plugin-autostart = "2"
+tauri-plugin-single-instance = "2"
+tokio = { version = "1.53.1", features = ["rt-multi-thread", "macros", "time", "sync", "process", "io-util", "net"] }
+tokio-tungstenite = "0.30.0"
+toml = "0.8"
+
+[dev-dependencies]
+anyhow = "1.0.104"
+serde_json = "1.0.151"
+tauri = { version = "2.12.0", features = ["test"] }
+tokio = { version = "1.53.1", features = ["rt-multi-thread", "macros", "time"] }
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

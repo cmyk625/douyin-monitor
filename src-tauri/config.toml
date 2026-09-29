@@ -1,0 +1,15 @@
+# 抖音监控系统配置文件 (config.toml)
+
+[feishu]
+# 是否启用飞书群机器人报警推送（true 为启用，false 为暂停）
+enabled = true
+
+# 飞书群自定义机器人的 Webhook 地址
+# 示例："https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+webhook = ""
+
+# 飞书自定义机器人安全设置：签名校验密钥（如群机器人安全设置中开启了“签名校验”请在此填写；未开启留空即可）
+secret = ""
+
+# 飞书自定义机器人安全设置：自定义关键词（如群机器人安全设置中开启了“关键词验证”请在此填写；报警内容将自动带上此关键词）
+keyword = ""
