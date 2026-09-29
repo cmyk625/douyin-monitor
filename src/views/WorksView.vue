@@ -37,13 +37,9 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
-  Edit3,
-  ExternalLink,
   Plus,
   RefreshCw,
   Search,
-  Trash2,
-  TrendingUp,
   User,
   X,
 } from "lucide-vue-next";
@@ -581,10 +577,10 @@ onMounted(() => {
     <Table containerClass="flex-1 min-h-0 overflow-auto">
       <TableHeader>
         <TableRow>
-          <TableHead>视频标题</TableHead>
-          <TableHead>作者</TableHead>
-          <TableHead>负责人</TableHead>
-          <TableHead>采集账号</TableHead>
+          <TableHead class="min-w-[200px]">视频标题</TableHead>
+          <TableHead class="whitespace-nowrap">作者</TableHead>
+          <TableHead class="whitespace-nowrap">负责人</TableHead>
+          <TableHead class="whitespace-nowrap">采集账号</TableHead>
           <TableHead class="text-right">
             <button
               type="button"
@@ -656,13 +652,15 @@ onMounted(() => {
             </button>
           </TableHead>
           <TableHead class="whitespace-nowrap">更新时间</TableHead>
-          <TableHead class="w-1 text-center">操作</TableHead>
+          <TableHead class="sticky right-0 top-0 z-30 bg-slate-950 text-center whitespace-nowrap border-l border-slate-800/80 border-b border-slate-800/70 shadow-[-4px_0_8px_-2px_rgba(0,0,0,0.5)] min-w-[220px] px-3">
+            操作
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow v-for="item in paginatedMonitored" :key="item.id">
+        <TableRow v-for="item in paginatedMonitored" :key="item.id" class="group">
           <!-- 视频标题 -->
-          <TableCell class="max-w-[280px]">
+          <TableCell class="min-w-[200px] max-w-[280px]">
             <div class="flex items-center gap-2">
               <span
                 class="w-1.5 h-1.5 rounded-full shrink-0"
@@ -685,7 +683,7 @@ onMounted(() => {
           </TableCell>
 
           <!-- 作者 -->
-          <TableCell class="text-slate-300">
+          <TableCell class="text-slate-300 whitespace-nowrap">
             {{ item.author_name || "—" }}
           </TableCell>
 
@@ -703,16 +701,16 @@ onMounted(() => {
           </TableCell>
 
           <!-- 指标数据 -->
-          <TableCell class="text-right font-mono font-semibold text-white">
+          <TableCell class="text-right font-mono font-semibold text-white whitespace-nowrap">
             {{ fmtNum(item.metrics.like) }}
           </TableCell>
-          <TableCell class="text-right font-mono text-slate-300">
+          <TableCell class="text-right font-mono text-slate-300 whitespace-nowrap">
             {{ fmtNum(item.metrics.comment) }}
           </TableCell>
-          <TableCell class="text-right font-mono text-slate-300">
+          <TableCell class="text-right font-mono text-slate-300 whitespace-nowrap">
             {{ fmtNum(item.metrics.share) }}
           </TableCell>
-          <TableCell class="text-right font-mono text-slate-300">
+          <TableCell class="text-right font-mono text-slate-300 whitespace-nowrap">
             {{ fmtNum(item.metrics.collect) }}
           </TableCell>
 
@@ -729,61 +727,60 @@ onMounted(() => {
             {{ fmtShort(item.last_seen_at) }}
           </TableCell>
 
-          <!-- 操作按钮组 -->
-          <TableCell>
-            <div class="flex items-center justify-end gap-1.5">
+          <!-- 操作按钮组 (固定右侧，纯文字按钮) -->
+          <TableCell class="sticky right-0 z-10 bg-slate-900 group-hover:bg-[#151e31] transition-colors border-l border-slate-800/80 border-b border-slate-800/70 shadow-[-4px_0_8px_-2px_rgba(0,0,0,0.5)] min-w-[220px] p-2 text-center">
+            <div class="flex items-center justify-center gap-1">
               <Button
                 size="sm"
-                variant="outline"
-                class="h-7 px-2 text-xs"
+                variant="ghost"
+                class="h-6 px-1.5 text-xs text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 font-normal"
                 :disabled="store.loading[`collect-${item.account_id}`] || !hasChrome"
                 :title="!hasChrome ? '缺少 Chrome 浏览器，请前往 https://www.google.cn/chrome/ 下载安装' : '立即通过关联账号采集此视频'"
                 @click="collectAccount(item.account_id)"
               >
-                <RefreshCw class="w-3 h-3" />
-                <span>采集</span>
+                <RefreshCw v-if="store.loading[`collect-${item.account_id}`]" class="w-3 h-3 animate-spin mr-0.5 inline" />
+                <span>{{ store.loading[`collect-${item.account_id}`] ? "采集中" : "采集" }}</span>
               </Button>
 
               <Button
                 size="sm"
                 variant="ghost"
-                class="h-7 px-2 text-xs"
+                class="h-6 px-1.5 text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 font-normal"
                 title="查看数据快照趋势图"
                 @click="openDetail(item.title || item.aweme_id, item.work_id)"
               >
-                <TrendingUp class="w-3 h-3" />
-                <span>趋势</span>
+                趋势
               </Button>
 
               <Button
-                v-if="item.url"
-                size="icon"
+                v-if="item.url || item.aweme_id"
+                size="sm"
                 variant="ghost"
-                class="h-7 w-7"
+                class="h-6 px-1.5 text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 font-normal"
                 title="在浏览器打开视频页面"
-                @click="openLink(item.url)"
+                @click="openLink(item.url || `https://www.douyin.com/video/${item.aweme_id}`)"
               >
-                <ExternalLink class="w-3 h-3" />
+                打开
               </Button>
 
               <Button
-                size="icon"
+                size="sm"
                 variant="ghost"
-                class="h-7 w-7"
+                class="h-6 px-1.5 text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 font-normal"
                 title="编辑监控设置"
                 @click="openEdit(item)"
               >
-                <Edit3 class="w-3 h-3" />
+                编辑
               </Button>
 
               <Button
-                size="icon"
-                variant="destructive"
-                class="h-7 w-7"
+                size="sm"
+                variant="ghost"
+                class="h-6 px-1.5 text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/15 font-normal"
                 title="移除监控"
                 @click="removeMonitored(item)"
               >
-                <Trash2 class="w-3 h-3" />
+                删除
               </Button>
             </div>
           </TableCell>
